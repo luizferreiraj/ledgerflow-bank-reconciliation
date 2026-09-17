@@ -1,0 +1,128 @@
+/* Reconciliation workbench — stylesheet. EXCERPT of 406 lines.
+   Kept: the design tokens, the top bar with its tabs and pending badge, the cards, the
+   states of the balance-proof boxes, and the strips the app pins to the top of the page.
+   A comment holding a single `…` marks what was left out. Selectors and declarations are
+   byte-identical to production — only the comments are translated, because `app.js` and
+   `index.html` address these class names as they are. */
+
+:root {
+  --azul: #1a73c7;
+  --azul-escuro: #14588f;
+  --verde: #17924a;
+  --vermelho: #c8342b;
+  --borda: #dfe3e8;
+  --fundo: #f4f6f8;
+  --texto: #22292f;
+  --muted: #77828d;
+  --branco: #fff;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font: 14px/1.45 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--fundo);
+  color: var(--texto);
+}
+
+/* ───────────────────────────── top bar ────────────────────────── */
+
+.topo {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--branco); border-bottom: 1px solid var(--borda);
+  padding: 0 20px; height: 54px;
+  position: sticky; top: 0; z-index: 20;
+}
+.marca { font-weight: 600; font-size: 15px; }
+.abas { margin-left: auto; display: flex; gap: 4px; height: 100%; }
+.aba {
+  background: none; border: none; border-bottom: 3px solid transparent;
+  padding: 0 16px; height: 100%; cursor: pointer; font-size: 14px; color: var(--muted);
+}
+.aba:hover { color: var(--texto); }
+.aba.ativa { color: var(--azul); border-bottom-color: var(--azul); font-weight: 600; }
+.selo {
+  display: none; background: var(--vermelho); color: #fff; border-radius: 10px;
+  padding: 1px 7px; font-size: 11px; margin-left: 4px;
+}
+.selo.visivel { display: inline-block; }
+/* Selected account with nothing pending: a green ✓. What is missing on ANOTHER account
+   shows up in the tooltip and in the Reconciliation bar, not in this number. */
+.selo.vazio { background: var(--verde); }
+
+main { padding: 20px; max-width: 1500px; margin: 0 auto; }
+.tela { display: none; }
+.tela.ativa { display: block; }
+
+/* … the screen header, `h1` and its period label, and the action row */
+
+/* … the controls: `.botao`, `.seletor`, `.campo`, and why the ledger-account field
+   became a `select` (the `datalist` did not open in Brave) */
+
+.cartao {
+  background: var(--branco); border: 1px solid var(--borda); border-radius: 6px;
+  padding: 14px 16px; margin-bottom: 16px;
+}
+.cartao-titulo { font-weight: 600; margin-bottom: 10px; }
+.linha-titulo { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.muted { color: var(--muted); font-weight: 400; }
+.pequeno { font-size: 12px; }
+.oculto { display: none !important; }
+
+/* ──────────────────────────── the proof ───────────────────────── */
+
+/* … the two-column grid of the Accounts & Statements screen, and the account list */
+
+.prova {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px; margin-bottom: 14px;
+}
+.prova .caixa { border: 1px solid var(--borda); border-radius: 5px; padding: 8px 10px; }
+.prova .rotulo { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .3px; }
+.prova .numero { font-size: 16px; font-variant-numeric: tabular-nums; }
+.prova .caixa.fechou { border-color: var(--verde); background: #f2fbf5; }
+.prova .caixa.falhou { border-color: var(--vermelho); background: #fdf3f2; }
+/* The sum matches, but there is still classifying to do: neither green nor red. Green
+   here would say "you can generate the batch", and you cannot. */
+.prova .caixa.parcial { border-color: #e6b800; background: #fffdf5; }
+.prova .detalhe { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* … the daily-balance chart and its tooltip, the tables, the reconciliation queue, the
+   category combo box, the transfer pairs and the batch bar */
+
+/* ──────────────────────────── feedback ────────────────────────── */
+
+.girando {
+  display: inline-block; width: 12px; height: 12px; margin-right: 6px;
+  border: 2px solid var(--azul); border-right-color: transparent; border-radius: 50%;
+  animation: girar .7s linear infinite; vertical-align: -1px;
+}
+@keyframes girar { to { transform: rotate(360deg); } }
+
+.faixa-versao {
+  position: sticky; top: 0; z-index: 60;
+  background: #fff3cd; border-bottom: 2px solid #e6b800; color: #6b4e00;
+  padding: 10px 20px; font-size: 13px; line-height: 1.5;
+}
+.faixa-versao code {
+  background: #fff; border: 1px solid #e2d5a8; border-radius: 3px; padding: 1px 5px;
+}
+
+.aviso {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--texto); color: #fff; padding: 10px 18px; border-radius: 5px;
+  z-index: 50; box-shadow: 0 4px 14px rgba(0,0,0,.2);
+}
+
+/* … the correction panel inside the refusal card, and the dialog that asks with buttons
+   instead of the browser's OK/Cancel */
+
+/* A refused scanned statement: the warning that the reading came from OCR, and what to
+   ask the client for. Yellow and not red — it is nobody's mistake, it is the kind of
+   file. */
+.aviso-ocr { background: #fff8e1; border-left: 3px solid #f0b400; padding: 6px 10px; margin: 6px 0; border-radius: 4px; }
+/* Portal access expired and the portal tab did not answer: the strip stays at the top
+   until the person renews. Yellow, like the OCR warning — it is not an error, it is the
+   clock. */
+.faixa-renovar { position: sticky; top: 0; z-index: 50; background: #fff8e1; border-bottom: 1px solid #f0b400; padding: 8px 16px; display: flex; gap: 12px; align-items: center; }

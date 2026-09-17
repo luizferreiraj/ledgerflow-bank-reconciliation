@@ -1,0 +1,117 @@
+<!doctype html>
+<!-- Reconciliation workbench — the page. EXCERPT of 232 lines: the head, the no-server
+     fallback in full, and the skeleton of the three screens. A comment holding a single
+     `…` marks what was left out; the text on screen stays in Portuguese. -->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bancada de Conciliação</title>
+<!-- The `/` route does not serve this file as it is: it stamps both assets with the hash
+     of their CONTENT (`styles.css?v=…`, `app.js?v=…`) and sends the HTML with `no-store`,
+     since it is the HTML that carries the stamp. The browser would otherwise go on
+     serving the cached old copy after an update. -->
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Opening index.html as a file (file://) loads the HTML but not the server: no CSS, no
+     JS and nobody to read the PDFs. The warning below is the first thing in the body and
+     carries its own styling, because in that scenario styles.css failed too. `app.js`
+     hides it when the origin is http. -->
+<div id="precisa-servidor" style="max-width:640px;margin:60px auto;padding:24px 28px;
+     border:2px solid #c8342b;border-radius:8px;font:15px/1.6 system-ui,sans-serif;color:#22292f">
+  <h2 style="margin:0 0 12px;color:#c8342b;font-size:18px">Esta página precisa do servidor</h2>
+  <p style="margin:0 0 14px">
+    Você abriu o <code>index.html</code> como <strong>arquivo</strong>. A bancada não é uma página
+    estática — ela é um programa que lê os PDFs e guarda os dados. Sem ele no ar, esta tela não
+    funciona.
+  </p>
+  <p style="margin:0 0 8px"><strong>Feche esta aba</strong> e rode no terminal:</p>
+  <pre style="background:#f4f6f8;border:1px solid #dfe3e8;border-radius:5px;padding:12px;
+       overflow-x:auto;margin:0 0 14px"><code>cd bank-statement-reconciler
+./.venv/bin/workbench</code></pre>
+  <p style="margin:0">
+    Ele abre o navegador sozinho em <code>http://127.0.0.1:8000</code>. O endereço tem que começar
+    com <strong>http://</strong> — se aparecer <em>Arquivo</em> ou <code>file://</code>, é esta tela
+    de novo. Deixe o terminal aberto enquanto estiver usando.
+  </p>
+</div>
+<script>
+  /* Inline on purpose: it is the only script that runs when `app.js` was not loaded with
+     the page — which is exactly the scenario of opening index.html on its own.
+
+     Synchronous and right after the warning, so that when served over http it is never
+     painted at all. A `remove()` down at the end of app.js would flash red on every
+     load. */
+  if (location.protocol === "file:") {
+    // Hides the application as soon as each piece of it is read: without styles.css the
+    // three screens show up stacked and unformatted, hiding the warning.
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".topo, main").forEach(function (n) {
+        n.style.display = "none";
+      });
+      document.title = "Bancada — precisa do servidor";
+    });
+  } else {
+    document.getElementById("precisa-servidor").remove();
+  }
+</script>
+
+<header class="topo">
+  <div class="marca">Bancada de Conciliação</div>
+  <select id="empresa" class="seletor"></select>
+  <button class="link" id="nova-empresa">+ Empresa</button>
+  <nav class="abas">
+    <button class="aba ativa" data-tela="conferencia">Contas &amp; Extratos</button>
+    <button class="aba" data-tela="conciliacao">Conciliação <span class="selo" id="selo-pendentes"></span></button>
+    <button class="aba" data-tela="config">Configuração</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ══════════════════════════════ SCREEN 1 ═════════════════════════════ -->
+<section id="tela-conferencia" class="tela ativa">
+
+  <div class="cabecalho-tela">
+    <h1>Contas &amp; Extratos</h1>
+    <div class="acoes">
+      <label class="botao primario">
+        Importar extratos (PDF)
+        <input type="file" id="upload-extrato" accept="application/pdf" multiple hidden>
+      </label>
+      <select id="competencia" class="seletor"></select>
+    </div>
+  </div>
+
+  <!-- … the import strip, the account list with its balances, the proof boxes and the
+       daily-balance chart, the statement table with its filters, the imported-files
+       table, and the batch card with its readiness line -->
+</section>
+
+<!-- ══════════════════════════════ SCREEN 2 ═════════════════════════════ -->
+<section id="tela-conciliacao" class="tela">
+  <div class="cabecalho-tela">
+    <h1>Conciliação <span class="periodo" id="periodo-conciliacao"></span></h1>
+  </div>
+  <!-- … the filters, the progress bar, the transfer-pairing card, the batch bar, and the
+       queue itself: one row per entry, statement on the left, classification on the
+       right -->
+  <div id="fila"></div>
+</section>
+
+<!-- ══════════════════════════════ SCREEN 3 ═════════════════════════════ -->
+<section id="tela-config" class="tela">
+  <div class="cabecalho-tela"><h1>Configuração</h1></div>
+  <!-- … the chart-of-accounts upload, the bank-account table where each bank gets its
+       short code, and the category table -->
+</section>
+
+</main>
+
+<div id="aviso" class="aviso oculto"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

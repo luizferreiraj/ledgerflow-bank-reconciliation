@@ -188,7 +188,8 @@ were rejected and the measurements behind it.
 ```text
 docs/decisions/    8 architecture decision records
 docs/screenshots/  the running system, with fictitious data
-code-samples/      25 selected files translated into English, with a reading guide
+code-samples/      28 selected files translated into English, with a reading guide
+                   (parsing · workbench API · web UI · export · tests)
 ```
 
 Start with the [code samples reading guide](code-samples/README.md).

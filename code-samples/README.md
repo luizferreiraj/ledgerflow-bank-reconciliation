@@ -1,8 +1,8 @@
 # Code samples
 
 Selected modules from the production codebase, translated from Portuguese into English. They are
-here to be **read**, not run: imports point to modules that aren't published, such as the 20
-layout parsers, the full HTTP API, the web UI and the repository layer.
+here to be **read**, not run: imports point to modules that aren't published, such as the 20 layout
+parsers, the rest of the HTTP API and the repository layer.
 
 **The translation is faithful to the code in production.** Every Python file was checked by a
 script: after renaming identifiers through a single glossary and ignoring the text inside strings
@@ -26,7 +26,11 @@ If you have ten minutes, read these in order:
    that only accepts what makes the statement close.
 3. [`tests/test_synthetic_statement.py`](tests/test_synthetic_statement.py): the pipeline run on a
    PDF written byte by byte, then damaged on purpose.
-4. [`workbench/app.py`](workbench/app.py): authentication as a path-keyed middleware.
+4. [`workbench/app.py`](workbench/app.py): authentication as a path-keyed middleware, and two
+   routes — an import that answers with a queue ticket, and a reclassification that asks for its
+   scope.
+5. [`workbench/ui/app.js`](workbench/ui/app.js): `api()`, the front-end's single door to the
+   server, which renews the portal token once on a 401 and retries.
 
 ## `statement/`: from PDF to proven entries
 
@@ -53,6 +57,14 @@ If you have ten minutes, read these in order:
 | [`suggestions.py`](workbench/suggestions.py) *(excerpt)* | The suggestion key depends on the direction of the money, payee names are stripped by prefix, and transaction types are discovered by counting how prefixes branch | `lookup_key`, `operation_kinds`, `useful_counterparty` |
 | [`transfer_pairing.py`](workbench/transfer_pairing.py) | Pairs searched only within one company, evidence required, one-to-one matching by confidence, and the transit-account proof filtered by category | `candidates`, `check_transit_account` |
 | [`import_queue.py`](workbench/import_queue.py) | A single-worker import queue sized to the real CPU limit, with tickets and queue position, and a documented decision not to survive restarts | `ImportQueue.accept`, `ImportQueue._work` |
+
+### `workbench/ui/`: the screens, with no framework and no build step
+
+| File | What to look at | Read first |
+|---|---|---|
+| [`app.js`](workbench/ui/app.js) *(excerpt)* | The client side of the login: the token arrives in the URL anchor (never sent to the server, never in a log), lives in `sessionStorage`, is renewed before it expires, and `api()` renews once on a 401 and retries. Also how the page notices it is newer than the server it is talking to | `api`, `takeTokenFromUrl`, `checkVersion` |
+| [`index.html`](workbench/ui/index.html) *(excerpt)* | Assets stamped with the hash of their content, so an update is never served from cache, and a self-styled warning for someone who opens the file directly instead of running the server | the `precisa-servidor` block |
+| [`styles.css`](workbench/ui/styles.css) *(excerpt)* | Design tokens, and the three states of the proof box: green only when the numbers close *and* the work is done | `.prova`, `.faixa-versao` |
 
 ## `export/`: the batch file the accounting system imports
 
