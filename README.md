@@ -201,7 +201,7 @@ pytest · GitHub Actions
 
 ## Contact
 
-**Luiz Ferreira** · [LinkedIn](https://www.linkedin.com/in/luiz-ferreira-junior-69496a144/) ·
+**Luiz Ferreira** · [LinkedIn](https://www.linkedin.com/in/luizferreira-jr/) ·
 [GitHub](https://github.com/luizferreiraj)
 
 © 2026 Luiz Ferreira. All rights reserved. Published for portfolio review; no license is granted to
