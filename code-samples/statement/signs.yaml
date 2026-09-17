@@ -1,0 +1,96 @@
+# The catalogued sign conventions (see ADR 2).
+#
+# The ones marked `in_use: true` are exercised by production parsers. The others are here with
+# examples in the exact format of files that no parser reads yet, so a new layout finds its slot
+# ready. What matters in each example is the measured FORMAT (separator, suffix, space, currency
+# sign); the names under `files` are generic. The convention tests are GENERATED from this file:
+# a convention without `real_examples` fails the suite.
+
+conventions:
+  - id: attached_suffix
+    caption: "C/D/* suffix attached to the amount"
+    regex: '^(?P<amount>(?:\d{1,3}(?:\.\d{3})+|\d+),\d{2})(?P<sign>[CD*])$'
+    mapping: {C: credit, D: debit, "*": non_posting}
+    real_examples:
+      - {string: "1.482,65D", direction: debit, amount: "1482.65"}
+      - {string: "2.500,00C", direction: credit, amount: "2500.00"}
+      - {string: "3.872,15*", direction: non_posting, amount: "3872.15"}
+    files: ["sicoob-sisbr-2026-06-a.pdf", "sicoob-ib-coopcentral-2026-06.pdf"]
+    in_use: true
+
+  - id: spaced_suffix
+    caption: "C/D suffix separated by a space"
+    regex: '^(?P<amount>(?:\d{1,3}(?:\.\d{3})+|\d+),\d{2})\s+(?P<sign>[CD*])$'
+    mapping: {C: credit, D: debit, "*": non_posting}
+    real_examples:
+      - {string: "0,09 D", direction: debit, amount: "0.09"}
+      - {string: "48,00 C", direction: credit, amount: "48.00"}
+    files: ["caixa-periodo-2026-06.pdf", "bb-2026-06.pdf"]
+    in_use: false
+
+  - id: separate_token_suffix
+    caption: >
+      amount and sign are separate tokens at different `y`, aligned on the same right edge.
+      Resolved by geometry, not by regex.
+    strategy: column_sequence
+    regex: '^(?P<amount>(?:\d{1,3}(?:\.\d{3})+|\d+),\d{2})$'
+    sign_in_separate_token: true
+    mapping: {C: credit, D: debit, "*": non_posting}
+    real_examples:
+      - {string: "1.320,00", separate_sign: "C", direction: credit, amount: "1320.00"}
+      - {string: "3.967,42", separate_sign: "D", direction: debit, amount: "3967.42"}
+    files: ["sicoob-sisbr-2026-06-b.pdf"]
+    in_use: true
+    mark: "if this fails, the sign flips silently"
+
+  - id: separate_columns
+    caption: "separate Credit and Debit columns; the sign comes from whichever one is filled"
+    strategy: column_by_x
+    real_examples:
+      - {string: "1.234,56", column: credit, direction: credit, amount: "1234.56"}
+      - {string: "789,01", column: debit, direction: debit, amount: "789.01"}
+    files: ["sicoob-colunas-2026-06.pdf", "caixa-ib-2026-06.pdf"]
+    in_use: false
+
+  - id: negative_attached_currency
+    caption: "-R$ 415,00"
+    regex: '^-R\$\s*(?P<amount>(?:\d{1,3}(?:\.\d{3})+|\d+),\d{2})$'
+    fixed_direction: debit
+    real_examples:
+      - {string: "-R$ 415,00", direction: debit, amount: "415.00"}
+    files: ["inter-2026-06.pdf"]
+    in_use: false
+
+  - id: negative_spaced_currency
+    caption: "- R$ 27,90 (Unicred / JasperReports)"
+    regex: '^-\s+R\$\s*(?P<amount>(?:\d{1,3}(?:\.\d{3})+|\d+),\d{2})$'
+    fixed_direction: debit
+    real_examples:
+      - {string: "- R$ 27,90", direction: debit, amount: "27.90"}
+    files: ["unicred-2026-06.pdf"]
+    in_use: false
+
+  - id: plain_negative
+    caption: "no suffix: negative is debit, positive is credit"
+    regex: '^(?P<sign>-?)(?P<amount>(?:\d{1,3}(?:\.\d{3})+|\d+),\d{2})$'
+    mapping_by_sign: {"-": debit, "": credit}
+    real_examples:
+      - {string: "-18,75", direction: debit, amount: "18.75"}
+      - {string: "-7,82", direction: debit, amount: "7.82"}
+      - {string: "1.392,64", direction: credit, amount: "1392.64"}
+    files: ["itau-2026-06.pdf", "sicredi-2026-06.pdf"]
+    in_use: true
+
+  - id: trailing_minus
+    caption: "385,20- (Santander Extrato Consolidado Inteligente)"
+    # The SAME bank prints a debit as `-652,30` on the checking-account statement and as
+    # `385,20-` on the consolidated one. There is no "Santander convention": the convention
+    # belongs to the LAYOUT, which is why each layout declares its own.
+    regex: '^(?P<amount>(?:\d{1,3}(?:\.\d{3})+|\d+),\d{2})(?P<sign>-?)$'
+    mapping_by_sign: {"-": debit, "": credit}
+    real_examples:
+      - {string: "385,20-", direction: debit, amount: "385.20"}
+      - {string: "58,47-", direction: debit, amount: "58.47"}
+      - {string: "315,60", direction: credit, amount: "315.60"}
+    files: ["santander-consolidado-2026-06.pdf"]
+    in_use: true

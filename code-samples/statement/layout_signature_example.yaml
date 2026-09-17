@@ -1,0 +1,46 @@
+# Excerpt of `signatures.yaml`, the layout registry: one of its 20 layouts (`sicoob_sisbr`).
+#
+# Routing is by textual signature, never by the PDF Producer (see ADR 2). The two SISBR files
+# come from different producers (iOS Quartz and iText), and one producer (Chrome/Skia) renders
+# layouts from different banks. Producer is noise; what identifies the layout is the column
+# header.
+#
+# CHRONOLOGICAL ORDER IS NOT DECLARED HERE, on purpose: `sicoob-sisbr-2026-06-a.pdf` and
+# `sicoob-sisbr-2026-06-b.pdf` are the SAME layout and arrive in opposite orders. The closing
+# anchors are chosen by date, never by position.
+#
+# Geometric constants live here, never in code. All of them were measured on the real files
+# listed under `known_files`. Quoted phrases are statement text, kept exactly as printed.
+
+layouts:
+  - id: sicoob_sisbr
+    label: "Sicoob SISBR (checking account statement)"
+    required:
+      - "PLATAFORMA DE SERVICOS FINANCEIROS DO SICOOB"
+      - "HISTORICO DE MOVIMENTACAO"
+      - "DATA HISTORICO VALOR"
+    forbidden:
+      - "Data Documento Historico Valor"
+    strategy: column_sequence
+    conventions: [attached_suffix, separate_token_suffix]
+    geometry:
+      # width of the page these columns were measured on; a page of another width shifts the
+      # right-hand boundaries (see `fit_columns_to_width`)
+      reference_width: 595.0
+      tol: 2.0
+      columns:
+        # date measured at 98.4-127.2 (Quartz) and 115.2-137.8 (iText)
+        posting_date: [90.0, 150.0]
+        description: [150.0, 430.0]
+        # amount measured at 434.3-496.8 (Quartz) and 433.5-480.0 (iText)
+        amount: [430.0, 510.0]
+    region:
+      begin: "HISTORICO DE MOVIMENTACAO"
+      end: "RESUMO"
+    markers:
+      opening_balance: "SALDO ANTERIOR"
+      daily_balance: "SALDO DO DIA"
+      balance: "SALDO"
+    known_files:
+      - "sicoob-sisbr-2026-06-a.pdf"
+      - "sicoob-sisbr-2026-06-b.pdf"
